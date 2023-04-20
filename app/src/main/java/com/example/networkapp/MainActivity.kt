@@ -1,11 +1,16 @@
 package com.example.networkapp
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -31,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         File(filesDir, internalFileName)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,6 +51,23 @@ class MainActivity : AppCompatActivity() {
 
         showButton.setOnClickListener {
             downloadComic(numberEditText.text.toString())
+        }
+
+        if (intent.action == Intent.ACTION_VIEW){
+            intent.data?.path?.run {
+                downloadComic(replace("/", ""))
+            }
+        }
+
+        findViewById<Button>(R.id.button).setOnClickListener{
+            try {
+                startActivity(Intent(
+                    Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
+            }catch (e: java.lang.Exception){
+                e.printStackTrace()
+            }
         }
 
         getFromFile()
